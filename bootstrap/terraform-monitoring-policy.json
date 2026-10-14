@@ -1,0 +1,77 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "CreateProjectAlertTopic",
+      "Effect": "Allow",
+      "Action": "sns:CreateTopic",
+      "Resource": "arn:aws:sns:eu-west-2:652656942006:backup-recovery-alerts",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestTag/Project": "backup-recovery"
+        }
+      }
+    },
+    {
+      "Sid": "ManageProjectBackupFailureTargets",
+      "Effect": "Allow",
+      "Action": [
+        "events:PutTargets",
+        "events:ListTargetsByRule",
+        "events:RemoveTargets"
+      ],
+      "Resource": "arn:aws:events:eu-west-2:652656942006:rule/backup-recovery-job-failures"
+    },
+    {
+      "Sid": "ManageProjectBackupFailureRule",
+      "Effect": "Allow",
+      "Action": [
+        "events:PutRule",
+        "events:DescribeRule",
+        "events:DeleteRule",
+        "events:EnableRule",
+        "events:DisableRule",
+        "events:ListTagsForResource",
+        "events:TagResource",
+        "events:UntagResource"
+      ],
+      "Resource": "arn:aws:events:eu-west-2:652656942006:rule/backup-recovery-job-failures"
+    },
+    {
+      "Sid": "SubscribeEmailToProjectAlertTopic",
+      "Effect": "Allow",
+      "Action": "sns:Subscribe",
+      "Resource": "arn:aws:sns:eu-west-2:652656942006:backup-recovery-alerts",
+      "Condition": {
+        "StringEquals": {
+          "sns:Protocol": "email"
+        }
+      }
+    },
+    {
+      "Sid": "ManageProjectAlertSubscriptions",
+      "Effect": "Allow",
+      "Action": [
+        "sns:GetSubscriptionAttributes",
+        "sns:SetSubscriptionAttributes",
+        "sns:Unsubscribe",
+        "sns:ListSubscriptionsByTopic"
+      ],
+      "Resource": "arn:aws:sns:eu-west-2:652656942006:backup-recovery-alerts"
+    },
+    {
+      "Sid": "ManageProjectAlertTopic",
+      "Effect": "Allow",
+      "Action": [
+        "sns:GetTopicAttributes",
+        "sns:SetTopicAttributes",
+        "sns:DeleteTopic",
+        "sns:ListTagsForResource",
+        "sns:TagResource",
+        "sns:UntagResource"
+      ],
+      "Resource": "arn:aws:sns:eu-west-2:652656942006:backup-recovery-alerts"
+    }
+  ]
+}
+

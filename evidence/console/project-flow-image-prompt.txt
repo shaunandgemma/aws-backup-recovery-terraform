@@ -1,0 +1,32 @@
+Generation method: built-in image_gen. Final image reviewed and corrected for restore arrow direction.
+
+Original prompt:
+Create a polished technical architecture FLOW DIAGRAM IMAGE for a LinkedIn portfolio post, landscape 3:2, high resolution, exceptionally legible text, restrained AWS-inspired orange/teal/purple palette on pale off-white, navy headings, crisp flat service icons, generous whitespace, professional infographic, no decorative 3D. Title: "AWS Backup & Recovery Lab". Subtitle: "Terraform infrastructure • Automated EBS backups • Verified application recovery". This is an accurate diagram of a completed small single-account single-region lab, not a proposed enterprise design.
+Main content within border labeled "AWS Sandbox • London (eu-west-2)".
+Arrange main connected flow in TWO rows, logical arrows with arrowheads clear, no intersections:
+TOP main row left to right:
+1 orange card "Original EC2" with small text "Python orders API" and "Managed by systemd".
+2 orange disk card "EBS data volume" with small text "SQLite: /data/orders/orders.db" and "Mounted at /data".
+3 green card "AWS Backup" with text "Daily at 03:00 UTC".
+4 purple card "Backup vault" with text "7-day retention" and "Encrypted EBS recovery points".
+Original EC2 <-> EBS data volume arrow labeled "Read / write".
+EBS data volume -> AWS Backup arrow labeled "Scheduled backup".
+AWS Backup -> Backup vault arrow labeled "Recovery point".
+SECOND row, manual recovery section under top row with a clearly routed downward arrow from Backup vault:
+card "Select known-good backup" -> card "Restore new EBS volume" -> card "Recovery EC2".
+Arrow down from Backup vault to Select known-good backup labeled "Manual recovery".
+The arrow Restore new EBS volume -> Recovery EC2 labeled "Attach + mount at /data".
+Recovery EC2 card small text "Reinstall app from Git" and "Validate orders + integrity".
+Below this row a concise note "Independent restored copy • No live replication or automatic failover".
+THIRD compact monitoring strip across bottom of AWS border, with separate purple arrows:
+"AWS Backup job events" -> "EventBridge" -> "SNS" -> "Email alert".
+Below EventBridge small "FAILED • EXPIRED • ABORTED". Do not imply backup data goes through SNS. This is separate from data restore flow.
+Outside AWS border at bottom narrow infrastructure management strip: "Local Terraform CLI → AWS infrastructure" and separately "HCP Terraform → Remote state storage". Small phrase "Systems Manager: server access over outbound HTTPS".
+Bottom results band visually distinct with three concise badges:
+"Deleted order recovered"
+"SQLite integrity + SHA-256 verified"
+"8m 5s to verified recovery*"
+Footnote exactly "*Prepared recovery server; excludes provisioning and client traffic cutover."
+Constraints: all text accurate and spelled correctly. No account numbers, resource IDs, public IPs, email addresses or invented services. No S3, RDS, NAT gateway, load balancer, Kubernetes, cross-region replication, automatic failover, or managed SQLite server. AWS Backup manages EBS snapshot recovery points; database is a FILE on EBS, not a separate AWS service. Clearly show bidirectional read/write only between original EC2 and its disk; backup/restore flow one-direction. Diagram should be clean enough to read as a LinkedIn image, not a dense technical spec.
+
+Final correction: route Backup vault to Select known-good backup, then Restore new EBS volume, then Recovery EC2. Rename bottom strip Provisioning & access; label AWS Systems Manager; clarify local Terraform provisions AWS infrastructure. Preserve remaining content.

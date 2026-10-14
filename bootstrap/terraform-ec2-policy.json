@@ -1,0 +1,202 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ReadComputeDetailsInLondon",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DescribeImages",
+        "ec2:DescribeInstances",
+        "ec2:DescribeInstanceTypes",
+        "ec2:DescribeInstanceAttribute",
+        "ec2:DescribeInstanceCreditSpecifications",
+        "ec2:DescribeInstanceStatus",
+        "ec2:DescribeIamInstanceProfileAssociations",
+        "ec2:DescribeVolumes",
+        "ec2:DescribeVolumeAttribute",
+        "ec2:DescribeVolumesModifications",
+        "ec2:DescribeNetworkInterfaces",
+        "ec2:DescribeTags"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestedRegion": "eu-west-2"
+        }
+      }
+    },
+    {
+      "Sid": "LaunchApprovedImage",
+      "Effect": "Allow",
+      "Action": "ec2:RunInstances",
+      "Resource": "arn:aws:ec2:eu-west-2::image/ami-0e5df6fd7455a69b3"
+    },
+    {
+      "Sid": "LaunchWithApplicationNetwork",
+      "Effect": "Allow",
+      "Action": "ec2:RunInstances",
+      "Resource": [
+        "arn:aws:ec2:eu-west-2:652656942006:subnet/subnet-0de8936caa7c7e6a7",
+        "arn:aws:ec2:eu-west-2:652656942006:security-group/sg-0f3450d632ffaf04d"
+      ]
+    },
+    {
+      "Sid": "LaunchNetworkInterfaceInApplicationSubnet",
+      "Effect": "Allow",
+      "Action": "ec2:RunInstances",
+      "Resource": "arn:aws:ec2:eu-west-2:652656942006:network-interface/*",
+      "Condition": {
+        "ArnEquals": {
+          "ec2:Subnet": "arn:aws:ec2:eu-west-2:652656942006:subnet/subnet-0de8936caa7c7e6a7"
+        }
+      }
+    },
+    {
+      "Sid": "LaunchProjectInstance",
+      "Effect": "Allow",
+      "Action": "ec2:RunInstances",
+      "Resource": "arn:aws:ec2:eu-west-2:652656942006:instance/*",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestTag/Project": "backup-recovery",
+          "ec2:InstanceType": "t3.small",
+          "ec2:MetadataHttpTokens": "required"
+        },
+        "ArnEquals": {
+          "ec2:InstanceProfile": "arn:aws:iam::652656942006:instance-profile/backup-recovery-ec2"
+        }
+      }
+    },
+    {
+      "Sid": "LaunchEncryptedProjectRootVolume",
+      "Effect": "Allow",
+      "Action": "ec2:RunInstances",
+      "Resource": "arn:aws:ec2:eu-west-2:652656942006:volume/*",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestTag/Project": "backup-recovery",
+          "ec2:VolumeType": "gp3"
+        },
+        "Bool": {
+          "ec2:Encrypted": "true"
+        },
+        "NumericEquals": {
+          "ec2:VolumeSize": "8"
+        }
+      }
+    },
+    {
+      "Sid": "TagComputeResourcesDuringLaunch",
+      "Effect": "Allow",
+      "Action": "ec2:CreateTags",
+      "Resource": [
+        "arn:aws:ec2:eu-west-2:652656942006:instance/*",
+        "arn:aws:ec2:eu-west-2:652656942006:volume/*"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "ec2:CreateAction": "RunInstances",
+          "aws:RequestTag/Project": "backup-recovery"
+        }
+      }
+    },
+    {
+      "Sid": "ManageProjectInstance",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:StartInstances",
+        "ec2:StopInstances",
+        "ec2:RebootInstances",
+        "ec2:TerminateInstances",
+        "ec2:ModifyInstanceAttribute",
+        "ec2:ModifyInstanceCreditSpecification",
+        "ec2:ModifyInstanceMetadataOptions"
+      ],
+      "Resource": "arn:aws:ec2:eu-west-2:652656942006:instance/*",
+      "Condition": {
+        "StringEquals": {
+          "aws:ResourceTag/Project": "backup-recovery"
+        }
+      }
+    },
+    {
+    "Sid": "CreateEncryptedProjectDataVolume",
+    "Effect": "Allow",
+    "Action": "ec2:CreateVolume",
+    "Resource": "arn:aws:ec2:eu-west-2:652656942006:volume/*",
+    "Condition": {
+        "StringEquals": {
+        "aws:RequestTag/Project": "backup-recovery",
+        "aws:RequestTag/Name": "backup-recovery-data",
+        "ec2:AvailabilityZone": "eu-west-2a",
+        "ec2:VolumeType": "gp3"
+        },
+        "Bool": {
+        "ec2:Encrypted": "true"
+        },
+        "NumericEquals": {
+        "ec2:VolumeSize": "8"
+        }
+    }
+    },
+    {
+    "Sid": "TagDataVolumeDuringCreation",
+    "Effect": "Allow",
+    "Action": "ec2:CreateTags",
+    "Resource": "arn:aws:ec2:eu-west-2:652656942006:volume/*",
+    "Condition": {
+        "StringEquals": {
+        "ec2:CreateAction": "CreateVolume",
+        "aws:RequestTag/Project": "backup-recovery",
+        "aws:RequestTag/Name": "backup-recovery-data"
+        }
+    }
+    },
+    {
+    "Sid": "AttachAndDetachProjectVolumes",
+    "Effect": "Allow",
+    "Action": [
+        "ec2:AttachVolume",
+        "ec2:DetachVolume"
+    ],
+    "Resource": [
+        "arn:aws:ec2:eu-west-2:652656942006:instance/*",
+        "arn:aws:ec2:eu-west-2:652656942006:volume/*"
+    ],
+    "Condition": {
+        "StringEquals": {
+        "aws:ResourceTag/Project": "backup-recovery"
+        }
+    }
+    },
+    {
+    "Sid": "DeleteProjectDataVolume",
+    "Effect": "Allow",
+    "Action": "ec2:DeleteVolume",
+    "Resource": "arn:aws:ec2:eu-west-2:652656942006:volume/*",
+    "Condition": {
+        "StringEquals": {
+        "aws:ResourceTag/Project": "backup-recovery",
+        "aws:ResourceTag/Name": "backup-recovery-data"
+        }
+    }
+    },
+    {
+    "Sid": "ManageProjectComputeTags",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:CreateTags",
+        "ec2:DeleteTags"
+      ],
+      "Resource": [
+        "arn:aws:ec2:eu-west-2:652656942006:instance/*",
+        "arn:aws:ec2:eu-west-2:652656942006:volume/*"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "aws:ResourceTag/Project": "backup-recovery"
+        }
+      }
+    }
+  ]
+}

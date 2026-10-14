@@ -1,0 +1,239 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ReadNetworkDetailsInLondon",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DescribeVpcs",
+        "ec2:DescribeVpcAttribute",
+        "ec2:DescribeNetworkAcls",
+        "ec2:DescribeRouteTables",
+        "ec2:DescribeSecurityGroups",
+        "ec2:DescribeSubnets",
+        "ec2:DescribeInternetGateways",
+        "ec2:DescribeTags"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestedRegion": "eu-west-2"
+        }
+      }
+    },
+    {
+      "Sid": "CreateProjectVpc",
+      "Effect": "Allow",
+      "Action": "ec2:CreateVpc",
+      "Resource": "arn:aws:ec2:eu-west-2:652656942006:vpc/*",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestTag/Project": "backup-recovery"
+        }
+      }
+    },
+    {
+      "Sid": "TagVpcDuringCreation",
+      "Effect": "Allow",
+      "Action": "ec2:CreateTags",
+      "Resource": "arn:aws:ec2:eu-west-2:652656942006:vpc/*",
+      "Condition": {
+        "StringEquals": {
+          "ec2:CreateAction": "CreateVpc",
+          "aws:RequestTag/Project": "backup-recovery"
+        }
+      }
+    },
+    {
+    "Sid": "CreateSubnetInProjectVpc",
+    "Effect": "Allow",
+    "Action": "ec2:CreateSubnet",
+    "Resource": "arn:aws:ec2:eu-west-2:652656942006:vpc/*",
+    "Condition": {
+        "StringEquals": {
+        "aws:ResourceTag/Project": "backup-recovery"
+        }
+      }
+    },
+    {
+    "Sid": "CreateProjectSubnet",
+    "Effect": "Allow",
+    "Action": "ec2:CreateSubnet",
+    "Resource": "arn:aws:ec2:eu-west-2:652656942006:subnet/*",
+    "Condition": {
+        "StringEquals": {
+        "aws:RequestTag/Project": "backup-recovery"
+        }
+      }
+    },
+    {
+      "Sid": "CreateRouteTableInProjectVpc",
+      "Effect": "Allow",
+      "Action": "ec2:CreateRouteTable",
+      "Resource": "arn:aws:ec2:eu-west-2:652656942006:vpc/*",
+      "Condition": {
+        "StringEquals": {
+          "aws:ResourceTag/Project": "backup-recovery"
+        }
+      }
+    },
+    {
+      "Sid": "CreateProjectRouteTable",
+      "Effect": "Allow",
+      "Action": "ec2:CreateRouteTable",
+      "Resource": "arn:aws:ec2:eu-west-2:652656942006:route-table/*",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestTag/Project": "backup-recovery"
+        }
+      }
+    },
+    {
+      "Sid": "TagRouteTableDuringCreation",
+      "Effect": "Allow",
+      "Action": "ec2:CreateTags",
+      "Resource": "arn:aws:ec2:eu-west-2:652656942006:route-table/*",
+      "Condition": {
+        "StringEquals": {
+          "ec2:CreateAction": "CreateRouteTable",
+          "aws:RequestTag/Project": "backup-recovery"
+        }
+      }
+    },
+    {
+      "Sid": "ManageProjectRouteTable",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:CreateRoute",
+        "ec2:ReplaceRoute",
+        "ec2:DeleteRoute",
+        "ec2:DeleteRouteTable",
+        "ec2:CreateTags",
+        "ec2:DeleteTags"
+      ],
+      "Resource": "arn:aws:ec2:eu-west-2:652656942006:route-table/*",
+      "Condition": {
+        "StringEquals": {
+          "aws:ResourceTag/Project": "backup-recovery"
+        }
+      }
+    },
+    {
+      "Sid": "ManageProjectSubnetRouteAssociation",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:AssociateRouteTable",
+        "ec2:ReplaceRouteTableAssociation",
+        "ec2:DisassociateRouteTable"
+      ],
+      "Resource": [
+        "arn:aws:ec2:eu-west-2:652656942006:route-table/*",
+        "arn:aws:ec2:eu-west-2:652656942006:subnet/*"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "aws:ResourceTag/Project": "backup-recovery"
+        }
+      }
+    },
+    {
+    "Sid": "TagSubnetDuringCreation",
+    "Effect": "Allow",
+    "Action": "ec2:CreateTags",
+    "Resource": "arn:aws:ec2:eu-west-2:652656942006:subnet/*",
+    "Condition": {
+        "StringEquals": {
+        "ec2:CreateAction": "CreateSubnet",
+        "aws:RequestTag/Project": "backup-recovery"
+        }
+      }
+    },
+    {
+    "Sid": "ManageProjectSubnet",
+    "Effect": "Allow",
+    "Action": [
+        "ec2:ModifySubnetAttribute",
+        "ec2:DeleteSubnet",
+        "ec2:CreateTags",
+        "ec2:DeleteTags"
+    ],
+    "Resource": "arn:aws:ec2:eu-west-2:652656942006:subnet/*",
+    "Condition": {
+        "StringEquals": {
+        "aws:ResourceTag/Project": "backup-recovery"
+        }
+      }
+    },
+    {
+    "Sid": "CreateProjectInternetGateway",
+    "Effect": "Allow",
+    "Action": "ec2:CreateInternetGateway",
+    "Resource": "arn:aws:ec2:eu-west-2:652656942006:internet-gateway/*",
+    "Condition": {
+      "StringEquals": {
+        "aws:RequestTag/Project": "backup-recovery"
+      }
+    }
+    },
+    {
+      "Sid": "TagInternetGatewayDuringCreation",
+      "Effect": "Allow",
+      "Action": "ec2:CreateTags",
+      "Resource": "arn:aws:ec2:eu-west-2:652656942006:internet-gateway/*",
+      "Condition": {
+        "StringEquals": {
+          "ec2:CreateAction": "CreateInternetGateway",
+          "aws:RequestTag/Project": "backup-recovery"
+        }
+      }
+    },
+    {
+      "Sid": "ManageProjectInternetGateway",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DeleteInternetGateway",
+        "ec2:CreateTags",
+        "ec2:DeleteTags"
+      ],
+      "Resource": "arn:aws:ec2:eu-west-2:652656942006:internet-gateway/*",
+      "Condition": {
+        "StringEquals": {
+          "aws:ResourceTag/Project": "backup-recovery"
+        }
+      }
+    },
+    {
+      "Sid": "AttachAndDetachProjectInternetGateway",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:AttachInternetGateway",
+        "ec2:DetachInternetGateway"
+      ],
+      "Resource": [
+        "arn:aws:ec2:eu-west-2:652656942006:internet-gateway/*",
+        "arn:aws:ec2:eu-west-2:652656942006:vpc/*"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "aws:ResourceTag/Project": "backup-recovery"
+        }
+      }
+    },
+    {
+    "Sid": "ManageProjectVpc",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:ModifyVpcAttribute",
+        "ec2:DeleteVpc",
+        "ec2:CreateTags",
+        "ec2:DeleteTags"
+      ],
+      "Resource": "arn:aws:ec2:eu-west-2:652656942006:vpc/*",
+      "Condition": {
+        "StringEquals": {
+          "aws:ResourceTag/Project": "backup-recovery"
+        }
+      }
+    }
+  ]
+}

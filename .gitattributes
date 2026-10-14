@@ -1,0 +1,7 @@
+# Preserve Linux line endings for shell scripts.
+*.sh text eol=lf
+
+# Preserve binary presentation and evidence files without line conversion.
+*.pdf binary
+*.png binary
+*.jpg binary

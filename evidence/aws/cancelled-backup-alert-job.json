@@ -1,0 +1,9 @@
+{
+    "BackupJobId": "505d0ea6-a6f9-400a-a3a9-787f8dfb4472",
+    "State": "ABORTED",
+    "Message": "Backup job was stopped by user.",
+    "Created": "2026-10-13T16:30:25.666000+01:00",
+    "Completed": "2026-10-13T16:30:27.561000+01:00",
+    "BackupVault": "backup-recovery-vault",
+    "Resource": "arn:aws:ec2:eu-west-2:652656942006:volume/vol-00db7a4656b016933"
+}

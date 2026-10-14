@@ -1,0 +1,8 @@
+{
+    "RestoreJobId": "1b46a53b-8a82-471c-9809-8d276e9148dc",
+    "Status": "COMPLETED",
+    "Message": null,
+    "Created": "2026-10-13T18:32:58.708000+01:00",
+    "Completed": "2026-10-13T18:34:14.537000+01:00",
+    "RestoredResource": "arn:aws:ec2:eu-west-2:652656942006:volume/vol-0c66915a87c30fcf7"
+}

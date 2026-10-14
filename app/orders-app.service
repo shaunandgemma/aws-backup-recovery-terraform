@@ -1,0 +1,20 @@
+[Unit]
+Description=Backup recovery lab orders application
+RequiresMountsFor=/data
+ConditionPathIsMountPoint=/data
+StartLimitIntervalSec=60
+StartLimitBurst=3
+
+[Service]
+Type=simple
+User=orders-app
+Group=orders-app
+WorkingDirectory=/opt/orders-app
+ExecStart=/usr/bin/python3 -u /opt/orders-app/app.py
+Restart=on-failure
+RestartSec=5
+UMask=0027
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

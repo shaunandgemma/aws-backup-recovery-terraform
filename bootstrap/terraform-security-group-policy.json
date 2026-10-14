@@ -1,0 +1,104 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ReadSecurityDetailsInLondon",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DescribeSecurityGroups",
+        "ec2:DescribeSecurityGroupRules",
+        "ec2:DescribeNetworkInterfaces"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestedRegion": "eu-west-2"
+        }
+      }
+    },
+    {
+      "Sid": "CreateSecurityGroupInProjectVpc",
+      "Effect": "Allow",
+      "Action": "ec2:CreateSecurityGroup",
+      "Resource": "arn:aws:ec2:eu-west-2:652656942006:vpc/*",
+      "Condition": {
+        "StringEquals": {
+          "aws:ResourceTag/Project": "backup-recovery"
+        }
+      }
+    },
+    {
+      "Sid": "CreateProjectSecurityGroup",
+      "Effect": "Allow",
+      "Action": "ec2:CreateSecurityGroup",
+      "Resource": "arn:aws:ec2:eu-west-2:652656942006:security-group/*",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestTag/Project": "backup-recovery"
+        }
+      }
+    },
+    {
+      "Sid": "TagSecurityResourcesDuringCreation",
+      "Effect": "Allow",
+      "Action": "ec2:CreateTags",
+      "Resource": [
+        "arn:aws:ec2:eu-west-2:652656942006:security-group/*",
+        "arn:aws:ec2:eu-west-2:652656942006:security-group-rule/*"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "ec2:CreateAction": [
+            "CreateSecurityGroup",
+            "AuthorizeSecurityGroupEgress"
+          ],
+          "aws:RequestTag/Project": "backup-recovery"
+        }
+      }
+    },
+    {
+      "Sid": "CreateTaggedEgressRule",
+      "Effect": "Allow",
+      "Action": "ec2:AuthorizeSecurityGroupEgress",
+      "Resource": "arn:aws:ec2:eu-west-2:652656942006:security-group-rule/*",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestTag/Project": "backup-recovery"
+        }
+      }
+    },
+    {
+      "Sid": "ManageProjectSecurityGroup",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DeleteSecurityGroup",
+        "ec2:AuthorizeSecurityGroupEgress",
+        "ec2:RevokeSecurityGroupEgress",
+        "ec2:ModifySecurityGroupRules",
+        "ec2:CreateTags",
+        "ec2:DeleteTags"
+      ],
+      "Resource": "arn:aws:ec2:eu-west-2:652656942006:security-group/*",
+      "Condition": {
+        "StringEquals": {
+          "aws:ResourceTag/Project": "backup-recovery"
+        }
+      }
+    },
+    {
+      "Sid": "ManageProjectSecurityGroupRule",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:ModifySecurityGroupRules",
+        "ec2:CreateTags",
+        "ec2:DeleteTags"
+      ],
+      "Resource": "arn:aws:ec2:eu-west-2:652656942006:security-group-rule/*",
+      "Condition": {
+        "StringEquals": {
+          "aws:ResourceTag/Project": "backup-recovery"
+        }
+      }
+    }
+  ]
+}

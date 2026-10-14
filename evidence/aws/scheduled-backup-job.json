@@ -1,0 +1,10 @@
+{
+    "BackupJobId": "C2972602-ABB9-AB33-E927-692DC850F626",
+    "State": "COMPLETED",
+    "Message": null,
+    "Created": "2026-10-13T04:00:00+01:00",
+    "Completed": "2026-10-13T04:28:38.717000+01:00",
+    "Resource": "arn:aws:ec2:eu-west-2:652656942006:volume/vol-00db7a4656b016933",
+    "RecoveryPoint": "arn:aws:ec2:eu-west-2::snapshot/snap-09ee62769b9a9bc19",
+    "BackupPlanId": "0e10011b-919f-496d-a526-a4707ed045c6"
+}

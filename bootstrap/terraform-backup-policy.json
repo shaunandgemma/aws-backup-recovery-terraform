@@ -1,0 +1,129 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "CreateTaggedProjectBackupPlan",
+      "Effect": "Allow",
+      "Action": [
+        "backup:CreateBackupPlan",
+        "backup:TagResource"
+      ],
+      "Resource": "arn:aws:backup:eu-west-2:652656942006:backup-plan:0e10011b-919f-496d-a526-a4707ed045c6",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestTag/Project": "backup-recovery"
+        }
+      }
+    },
+        {
+      "Sid": "ManageProjectBackupSelections",
+      "Effect": "Allow",
+      "Action": [
+        "backup:CreateBackupSelection",
+        "backup:GetBackupSelection",
+        "backup:DeleteBackupSelection",
+        "backup:ListBackupSelections"
+      ],
+      "Resource": "arn:aws:backup:eu-west-2:652656942006:backup-plan:0e10011b-919f-496d-a526-a4707ed045c6"
+    },
+        {
+      "Sid": "StartBackupInProjectVault",
+      "Effect": "Allow",
+      "Action": "backup:StartBackupJob",
+      "Resource": "arn:aws:backup:eu-west-2:652656942006:backup-vault:backup-recovery-vault"
+    },
+        {
+      "Sid": "RestoreSelectedRecoveryPoint",
+      "Effect": "Allow",
+      "Action": "backup:StartRestoreJob",
+      "Resource": "arn:aws:ec2:eu-west-2::snapshot/snap-09ee62769b9a9bc19"
+    },
+    {
+      "Sid": "ReadRestoreJobStatusInLondon",
+      "Effect": "Allow",
+      "Action": "backup:DescribeRestoreJob",
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestedRegion": "eu-west-2"
+        }
+      }
+    },
+    {
+      "Sid": "ReadBackupJobStatusInLondon",
+      "Effect": "Allow",
+      "Action": "backup:DescribeBackupJob",
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestedRegion": "eu-west-2"
+        }
+      }
+    },
+    {
+      "Sid": "ManageProjectBackupPlan",
+      "Effect": "Allow",
+      "Action": [
+        "backup:GetBackupPlan",
+        "backup:UpdateBackupPlan",
+        "backup:DeleteBackupPlan",
+        "backup:ListTags",
+        "backup:TagResource",
+        "backup:UntagResource"
+      ],
+      "Resource": "arn:aws:backup:eu-west-2:652656942006:backup-plan:0e10011b-919f-496d-a526-a4707ed045c6",
+      "Condition": {
+        "StringEquals": {
+          "aws:ResourceTag/Project": "backup-recovery"
+        }
+      }
+    },
+    {
+      "Sid": "CreateProjectBackupVault",
+      "Effect": "Allow",
+      "Action": "backup:CreateBackupVault",
+      "Resource": "arn:aws:backup:eu-west-2:652656942006:backup-vault:backup-recovery-vault",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestTag/Project": "backup-recovery"
+        }
+      }
+    },
+    {
+      "Sid": "ManageProjectBackupVault",
+      "Effect": "Allow",
+      "Action": [
+        "backup:DescribeBackupVault",
+        "backup:DeleteBackupVault",
+        "backup:ListTags",
+        "backup:TagResource",
+        "backup:UntagResource",
+        "backup:ListRecoveryPointsByBackupVault"
+      ],
+      "Resource": "arn:aws:backup:eu-west-2:652656942006:backup-vault:backup-recovery-vault"
+    },
+    {
+      "Sid": "PrepareBackupStorageInLondon",
+      "Effect": "Allow",
+      "Action": "backup-storage:MountCapsule",
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestedRegion": "eu-west-2"
+        }
+      }
+    },
+    {
+      "Sid": "UseAwsManagedBackupKey",
+      "Effect": "Allow",
+      "Action": [
+        "kms:CreateGrant",
+        "kms:DescribeKey",
+        "kms:RetireGrant",
+        "kms:Decrypt",
+        "kms:GenerateDataKey"
+      ],
+      "Resource": "arn:aws:kms:eu-west-2:652656942006:key/c53c3ec5-c024-46fd-a382-93204d4ecdb8"
+    }
+  ]
+}

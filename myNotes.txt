@@ -1,0 +1,285 @@
+Step 1 - Sandbox Access
+Sandbox keeps the recovery lab separate from the management account.
+sandbox-terraform successfully accesses the Sandbox Terraform role.
+Console access works through OrganizationAccountAccessRole.
+The Terraform role cannot read IAM role details.
+Successful sign-in does not prove permission for every action.
+No roles or policies were changed.
+
+Step 2 - Recovery Plan and Budget
+Demo: recover a small order application and synthetic data.
+Use Sandbox in eu-west-2 with EC2, EBS and AWS Backup.
+RPO: up to 24 hours of data loss.
+RTO: verified recovery within 60 minutes.
+Keep backups for seven days without locked retention.
+Budget: under £20 total; review spending at £12.
+Test accidental deletion and server failure.
+Recovery targets are agreed; actual results are not yet measured.
+
+Step 3 - Git Setup
+Created a separate Git repository on main.
+.gitignore excludes Terraform state, plans and local credentials.
+Keep .terraform.lock.hcl in Git for repeatable provider versions.
+VS Code reported an ownership mismatch.
+Added a safe.directory exception for this project only.
+
+Step 4 - HCP Terraform State
+Created aws-backup-recovery-lab with Local execution.
+Terraform runs on my PC; HCP Terraform stores its state.
+Installed AWS provider 6.67.0 and recorded it in the lock file.
+The provider is restricted to the Sandbox account.
+A data source reads information without creating infrastructure.
+Applied the account-ID output and verified its state in HCP.
+No AWS infrastructure was created.
+
+Step 5 - Remove Old Terraform Access
+Detached and deleted the old Sandbox Config policy.
+Deleted aws-landing-zone-sandbox-terraform-role.
+Verified both deletions with NoSuchEntity responses.
+Kept John, bootstrap access and AWS service-linked roles.
+New project access will use a separate, clearly named role.
+
+Step 6 - Project Access and VPC
+Created aws-backup-recovery-terraform-role and the backup-recovery profile.
+Bootstrap access attaches permissions; the project role runs Terraform.
+Created the VPC with project-scoped permissions.
+Verified its CIDR, DNS settings and tags in the Sandbox console.
+Terraform records the VPC in HCP state.
+The VPC has no application server or internet connection yet.
+
+Step 7 - Subnet and Internet Routing
+Created the application subnet in eu-west-2a.
+Attached an internet gateway to the project VPC.
+Created a dedicated route table and associated the application subnet.
+Verified the local route and the default internet gateway route.
+The internet gateway route makes this a public subnet.
+Automatic public IPv4 assignment remains disabled.
+Extended Terraform permissions through bootstrap-managed policy versions.
+Terraform references use resource_type.resource_name.attribute.
+
+Step 8 - Application Server and Systems Manager
+Created a security group with no inbound rules and outbound HTTPS.
+Created the EC2 role, Systems Manager policy attachment and instance profile.
+Launched a t3.small with standard CPU credits and IMDSv2 required.
+Used Amazon Linux 2023 with an encrypted 8 GiB root disk.
+Verified the SSM agent was Online and opened a browser session.
+Connected as ssm-user without opening inbound SSH access.
+
+Step 9 - Separate Application Data Disk
+Created and attached an encrypted 8 GiB gp3 volume in eu-west-2a.
+Matched the Linux disk serial to its EBS volume ID before formatting.
+Created an XFS filesystem and mounted it at /data.
+Added its filesystem UUID to /etc/fstab with defaults,nofail.
+Successfully tested the saved entry by unmounting and remounting.
+Terraform manages the disk and attachment; Linux manages its filesystem and mount.
+
+Step 10 - Orders Application
+Created a SQLite database on the separate EBS data disk.
+Attaching connects the disk to EC2; mounting makes its filesystem accessible at /data.
+Python uses SQLite to read and write /data/orders/orders.db.
+SQLite is a real database system without a separate database server.
+The application requires /data to be mounted and the database to exist.
+Configured systemd to run the application as orders-app.
+Verified all four orders survived an application restart and an EC2 reboot.
+After reboot, /data mounted and the application started automatically.
+A separate data disk helps with server replacement but does not protect against deleted orders.
+Terraform manages infrastructure, not individual database records.
+Systems Manager uses outbound HTTPS and permissions from the EC2 instance role.
+Committed the application, service definition, diagram and notes to Git.
+Chapter checkpoint: four correct answers and two partly correct.
+Overall progress: 35%; AWS Backup configuration is next.
+Backup and restore testing has not yet been completed.
+
+Step 11 - Backup Vault, Plan and Permissions
+Created backup-recovery-vault in Sandbox, eu-west-2.
+Kept force_destroy disabled and did not configure Vault Lock.
+Created a daily backup plan for 03:00 UTC with seven-day retention.
+Configured a 60-minute start window and 120-minute completion window.
+Daily scheduling alone does not guarantee the 24-hour RPO.
+Created a service role that AWS Backup can assume, with AWS-managed backup permissions.
+Restricted Terraform's backup-plan permissions to our specific plan ARN.
+Updated the bootstrap IAM policy to v2 and backup policy to v5.
+Applied and verified the selection: only the data EBS volume is assigned, using the backup service role.
+Recreating the backup plan requires updating bootstrap permissions because its ARN contains an AWS-generated ID.
+First on-demand backup verified in Step 12; restore testing remains pending.
+
+Step 12 - First Backup Verified
+Verified four orders and SQLite integrity before taking the backup.
+Stopped the application and flushed pending writes with sync.
+Recorded the database SHA-256 checksum:
+4a9f446a0a0b2461917cae20c0392aa6079b93d0722da3290f8c07ead3737d01
+Started an on-demand AWS Backup job with explicit seven-day retention.
+Backup completed on 12 October 2026 at 13:28:33 UTC, about 61 seconds after acceptance.
+Recovery point: snap-05ded9da1639af7ee.
+Verified the correct source volume, encryption and seven-day retention.
+The recovery point is scheduled to expire on 19 October 2026 at 13:27:32 UTC.
+Restarted the application and confirmed it was healthy with four orders.
+The daily schedule is configured; a scheduled run has not yet been verified.
+This controlled backup paused application writes; the daily schedule does not.
+The 61 seconds measures backup duration, not recovery time.
+A completed backup does not prove recovery; restore testing remains pending.
+
+Step 13 - Backup Alert Configuration
+Created an SNS topic and confirmed its email subscription.
+Created an EventBridge rule for FAILED, EXPIRED and ABORTED backup jobs in our vault.
+Added a topic policy allowing EventBridge to publish to SNS.
+Connected the rule to SNS through an EventBridge target.
+Updated the bootstrap monitoring policy to v4.
+Received a direct SNS test email.
+Verified a sample FAILED event matched the rule.
+Verified COMPLETED events and failures from another vault did not match.
+Pattern tests do not trigger notifications.
+A real backup-failure alert through the complete flow remains unverified.
+
+Step 14 - First Scheduled Backup Verified
+Verified our daily plan created a backup on 13 October 2026 at 03:00 UTC.
+The job completed at 03:28:38 UTC with no reported status message.
+Recovery point: snap-09ee62769b9a9bc19.
+The scheduled backup ran without our controlled application pause.
+Successful backup completion does not prove the database can be restored.
+Restore testing and measured RPO/RTO remain outstanding.
+
+Step 15 - Complete Cancellation Alert Test
+Started one additional on-demand backup and cancelled that specific job.
+Job ID: 505d0ea6-a6f9-400a-a3a9-787f8dfb4472.
+Verified ABORTED status with the message "Backup job was stopped by user."
+Received the corresponding alert email.
+Verified the complete AWS Backup → EventBridge → SNS → email flow for ABORTED.
+The FAILED case has only been checked using a sample event.
+The test recovery point was absent from the vault.
+EBS confirmed the returned snapshot ID did not exist.
+No snapshot cleanup was needed.
+The daily backup plan and existing recovery points were not changed.
+Failure alerts alone do not detect every missing or overdue backup.
+
+Step 16 - Restore Preparation
+Verified the scheduled recovery point was completed, encrypted and from the correct data volume.
+Prepared an 8 GiB encrypted gp3 restore in eu-west-2a.
+Created backup-recovery-restore-role with the AWS-managed restore policy.
+The managed restore policy covers more services than this lab requires.
+Updated the bootstrap IAM policy to v3 and backup policy to v6.
+Removed only inactive backup-policy version v1 to free a version slot.
+
+Step 17 - Restore to a Separate Server
+Restored snapshot snap-09ee62769b9a9bc19 using AWS Backup.
+Restore job: 80983863-e127-470a-80a9-0daa7e466757.
+The restore job completed in approximately 76 seconds.
+Restored volume: vol-0a5d57740e49daaad.
+Created recovery EC2 instance i-08bb3f3d7d4ef69b1 with Terraform.
+Tagged and attached the restored volume to the recovery server.
+Terraform manages the server and attachment; the restored volume needs separate cleanup.
+Mounted the existing XFS filesystem at /data without formatting it.
+Verified SQLite integrity and all four original orders.
+The database SHA-256 matched the recorded baseline.
+Recreated orders-app with UID/GID 993 and installed the saved application code.
+Verified application health and recovered orders at 17:08:22 UTC on 13 October 2026.
+Restore request to first application verification took approximately 33 minutes 33 seconds.
+This was a recovery rehearsal, not a timed incident drill.
+The recovery server is a restored copy, not a continuously synchronised replica.
+
+Step 18 - Recovery Server Reboot Test
+Added the restored filesystem UUID to /etc/fstab and verified the configuration.
+Installed and enabled the saved systemd service.
+Rebooted the recovery server and verified it at 17:24:43 UTC.
+The data disk mounted and the application started automatically.
+All four orders retained their original IDs, values and timestamps.
+Restore request through reboot verification took approximately 49 minutes 54 seconds.
+Potential data loss from changes after the backup has not yet been measured.
+Both EC2 servers and their storage remain provisioned and incur charges.
+
+Step 19 - Recovery Writes and Independent Copies
+Added ORD-D43D41B770CC to the first recovery copy.
+Verified the recovery application had five orders while the original still had four.
+The restored database is independent and does not synchronise with the original.
+Added post-backup marker ORD-F4F3785E89AE to the original at 17:29:34 UTC.
+
+Step 20 - Controlled Deletion and Timed Recovery
+With approval, deleted only ORD-1002 (Keyboard) from the original database.
+Incident time: 13 October 2026 at 17:32:06.816269 UTC.
+Verified Keyboard was absent and the post-backup marker remained.
+Started a fresh restore of scheduled snapshot snap-09ee62769b9a9bc19.
+Restore job: 1b46a53b-8a82-471c-9809-8d276e9148dc.
+New restored volume: vol-0c66915a87c30fcf7.
+Terraform replaced only the recovery server's data-volume attachment.
+Restarted the recovery server; mounting and application startup were automatic.
+Verified the four original orders, including Keyboard, at 17:40:12 UTC.
+The post-backup marker was absent, demonstrating one unrecovered later write.
+Incident to verified application recovery took approximately 8 minutes 5 seconds.
+This met the 60-minute target using an already-prepared recovery server.
+The measurement excluded server provisioning and real client traffic cutover.
+Using the recovery point's recorded creation time, its age at the incident was approximately 14 hours 32 minutes.
+That was within the 24-hour target for this exercise, not a guarantee for future incidents.
+The restored database matched the baseline SHA-256 and passed SQLite integrity checking.
+The original database still contains the simulated deletion and post-backup marker.
+The previous restored volume vol-0a5d57740e49daaad remains detached and requires separate cleanup.
+
+Step 21 - Original Server Unavailable
+Manually stopped original EC2 instance i-0f6fc8c32be710a6a.
+AWS recorded the user-initiated stop at 17:44:07 UTC on 13 October 2026.
+Verified AWS reported the original instance as stopped.
+At 17:44:56 UTC, the recovery application remained healthy with all four recovered orders.
+This demonstrated that the recovered application operates independently of the original server.
+The 49-second interval was a verification interval, not a restore or automatic-failover measurement.
+No client traffic switching was tested.
+Left the original server stopped; its EBS storage remains provisioned.
+
+Step 22 - Recovery Variable and Runbook
+Replaced the hard-coded restored volume ID with a validated Terraform variable.
+Added terraform.tfvars.example; actual local values remain excluded from Git.
+Added a lifecycle exception for the public-IP association on both EC2 instances.
+This avoids the observed replacement plan after stopping an instance.
+Future intentional changes to that setting require reviewing the exception.
+Verified Terraform reported no infrastructure changes.
+Documented recovery onto an already-prepared recovery server.
+Included backup selection, restore, disk checks, attachment changes and validation.
+Recorded recovery timing limits, failure handling and separate volume cleanup.
+Reviewed the runbook and checked its PowerShell syntax.
+The written procedure has not been rerun end to end.
+
+Step 23 - Reusable Recovery Server Preparation
+Added a script to verify the mounted restored volume and prepare orders-app.
+The script checks existing database ownership and stops on identity conflicts.
+Added an installer for the application code and systemd service.
+Neither script formats disks or initialises a database.
+Documented file transfer, checksum checks, mounting and reboot verification.
+Checked Bash and PowerShell syntax.
+Verified the application archive contains only the four required files.
+Extracted files matched their original checksums.
+The new scripted procedure has not yet been tested on a fresh EC2 server.
+
+Step 24 - Fresh Server Setup Verified
+Created temporary test server i-09f20d5907d3eb625.
+Attached existing restored volume vol-0a5d57740e49daaad.
+Transferred the application bundle and verified its SHA-256 checksum.
+Both setup scripts passed Bash syntax checks on Amazon Linux.
+Verified the disk identity and configured mounting through /etc/fstab.
+Ran the installer successfully on the fresh server.
+Verified all five expected orders and SQLite integrity at 09:43:56 UTC.
+Rebooted and confirmed automatic mounting and application startup.
+All five orders retained their original values and timestamps.
+Post-reboot SQLite integrity passed at 09:46:46 UTC on 14 October 2026.
+This tested scripted server preparation using an existing restored disk.
+It did not include a new backup restore or client traffic switching.
+The temporary test server is ready for cleanup; its data disk must be retained.
+
+Step 25 - Temporary Test Server Cleanup
+Moved setup-test.tf to recovery/setup-test.tf.example for reference.
+Reviewed a plan removing only the test server and its attachment.
+Stopped the test application and unmounted /data before cleanup.
+Terraform removed the attachment and temporary test server.
+Verified restored volume vol-0a5d57740e49daaad remained available and detached.
+Verified test root volume vol-0df8a214e16ed6b41 no longer existed.
+This cleanup did not remove the main lab resources.
+The retained restored disk continues to incur storage charges.
+Confirmed Terraform reported no changes after cleanup.
+
+Step 26 - Portfolio Evidence
+Prepared the project README and recorded test-results summary.
+Saved backup, restore and cancellation-job outputs for the LinkedIn post.
+Saved the matching cancellation alert email without its unsubscribe details.
+Captured the recovery application returning all four baseline orders.
+Rechecked SQLite integrity and the database checksum on 14 October 2026.
+Integrity passed and the checksum matched the original four-order baseline.
+These later checks support the evidence; they do not change the earlier recovery timing.
+Measured recovery remains approximately 8 minutes 5 seconds using a prepared server.
+Full project cleanup remains outstanding.

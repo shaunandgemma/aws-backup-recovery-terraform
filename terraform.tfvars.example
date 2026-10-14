@@ -1,0 +1,8 @@
+# Copy this file to terraform.tfvars and replace the example values.
+# Keep terraform.tfvars out of Git.
+
+backup_alert_email = "your-email@example.com"
+
+# Use the NEW volume ID returned by your successful AWS Backup restore.
+# Verify its source snapshot, Availability Zone, encryption and tags first.
+restored_data_volume_id = "vol-0123456789abcdef0"

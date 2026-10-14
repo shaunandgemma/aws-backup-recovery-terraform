@@ -1,0 +1,1 @@
+{"detail":{"backupVaultArn":["arn:aws:backup:eu-west-2:652656942006:backup-vault:backup-recovery-vault"],"state":["FAILED","EXPIRED","ABORTED"]},"detail-type":["Backup Job State Change"],"source":["aws.backup"]}

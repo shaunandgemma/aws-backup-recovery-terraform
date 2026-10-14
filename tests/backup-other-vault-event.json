@@ -1,0 +1,16 @@
+{
+    "version":  "0",
+    "id":  "11111111-2222-4333-8444-555555555555",
+    "detail-type":  "Backup Job State Change",
+    "source":  "aws.backup",
+    "account":  "652656942006",
+    "time":  "2026-10-12T14:00:00Z",
+    "region":  "eu-west-2",
+    "resources":  [
+
+                  ],
+    "detail":  {
+                   "backupVaultArn":  "arn:aws:backup:eu-west-2:652656942006:backup-vault:unrelated-test-vault",
+                   "state":  "FAILED"
+               }
+}

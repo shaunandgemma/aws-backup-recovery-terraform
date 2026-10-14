@@ -1,0 +1,27 @@
+# Downloaded Terraform providers and modules
+.terraform/
+
+# Terraform state and saved plans
+*.tfstate
+*.tfstate.*
+*.tfplan
+tfplan
+
+# Local variable values
+*.tfvars
+*.tfvars.json
+
+# Terraform logs and CLI credentials
+crash.log
+crash.*.log
+.terraformrc
+terraform.rc
+
+# Local credentials and environment settings
+.aws/
+.env
+.env.*
+
+# Local document builds and rendered review pages
+/tmp/
+/output/

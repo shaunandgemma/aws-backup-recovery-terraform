@@ -1,0 +1,8 @@
+{
+  "availabilityZone": "eu-west-2a",
+  "volumeType": "gp3",
+  "volumeSize": "8",
+  "encrypted": "true",
+  "kmsKeyId": "arn:aws:kms:eu-west-2:652656942006:key/1ef1b7c6-5ab7-4740-bc5f-b60ca95e1da8"
+}
+
