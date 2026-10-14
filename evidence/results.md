@@ -104,3 +104,20 @@ Follow-up checks confirmed:
 - Terraform subsequently reported no changes.
 
 The main lab resources remained provisioned. This was not full teardown.
+
+## Full project teardown, 14 October 2026
+
+After the recovery tests, the backup assignment was removed and no unfinished
+backup or restore jobs were found. All three recovery points were deleted.
+
+Terraform then destroyed the remaining 27 managed resources. Verification
+confirmed empty Terraform state and both main servers terminated.
+
+Both restored data volumes were deleted. No project-tagged EBS volumes,
+known backup snapshots or additional snapshots associated with the three
+data disks remained.
+
+The project Terraform role and its six unused policies were also removed.
+Protected account and bootstrap resources were preserved.
+
+Final billing review remains outstanding.

@@ -283,3 +283,20 @@ Integrity passed and the checksum matched the original four-order baseline.
 These later checks support the evidence; they do not change the earlier recovery timing.
 Measured recovery remains approximately 8 minutes 5 seconds using a prepared server.
 Full project cleanup remains outstanding.
+
+Step 27 - Full Project Teardown Verified
+Removed the backup resource selection to stop future scheduled backups.
+Confirmed no unfinished backup or EBS restore jobs.
+Stopped the recovery application and unmounted its data disk.
+Deleted all three recovery points and verified the vault was empty.
+Terraform destroyed the remaining 27 managed resources.
+Verified Terraform state was empty and both main servers were terminated.
+Deleted both separately restored data volumes.
+Verified no project-tagged EBS volumes remained.
+Verified the three known backup snapshots no longer existed.
+Checked all three data-volume IDs and found no remaining snapshots.
+Deleted the project Terraform access role and its six unused policies.
+Preserved John, bootstrap access, the Organization and member accounts.
+Kept the code, runbooks and portfolio evidence.
+Final billing review remains outstanding; earlier usage may appear later.
+

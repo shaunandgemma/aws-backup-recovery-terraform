@@ -277,6 +277,20 @@ automatically removed by the main Terraform teardown.
 
 Protect the AWS Organization, member accounts, John and unrelated resources.
 
-As of the verified cleanup on 14 October 2026, the temporary setup-test
-server and its root disk had been removed. Its restored data disk was
-retained. Full project teardown had not been completed.
+## Verified teardown, 14 October 2026
+
+The lab infrastructure has been removed:
+
+- Removed the backup assignment and confirmed no unfinished backup or restore jobs.
+- Deleted all three recovery points and emptied the backup vault.
+- Terraform destroyed the remaining 27 managed resources.
+- Verified empty Terraform state and both main EC2 servers terminated.
+- Deleted both restored data volumes and confirmed no project-tagged EBS volumes remained.
+- Confirmed the three known backup snapshots were absent and found no additional snapshots associated with the three data disks.
+- Removed the project Terraform access role and its six unused policies.
+
+John, bootstrap access, the AWS Organization and member accounts were preserved.
+The code, recovery guides and portfolio evidence remain available.
+
+Final billing review is outstanding. These checks confirm resource cleanup,
+but do not certify a final cost or rule out charges from unrelated resources.
